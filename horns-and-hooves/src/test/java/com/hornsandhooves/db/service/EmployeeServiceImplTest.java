@@ -28,11 +28,11 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 
 /**
- *
+ * 
  * @author Alexander
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:data.hibernate.xml"})
+@ContextConfiguration(locations = { "classpath:data.hibernate.xml" })
 @Transactional
 public class EmployeeServiceImplTest {
 
@@ -41,11 +41,10 @@ public class EmployeeServiceImplTest {
     private BindingResult result;
     private EmployeeDao mockEmployeeDao;
     private DivisionDao mockDivisionDao;
-    
-    
+
     @Autowired
     private IEmployeeService employeeService;
-    
+
     @Before
     public void setUp() {
         employee = new EmployeeImpl();
@@ -58,28 +57,29 @@ public class EmployeeServiceImplTest {
         mockDivisionDao = createMock(DivisionDao.class);
         employeeService.setDivisionDao(mockDivisionDao);
     }
-    
+
     /**
      * Test of createEmployee method, of class EmployeeServiceImpl.
      */
     @Test
     public void testCreateEmployee() {
-    	System.out.println("createEmployee");
-    	employee.setDivisionId(new DivisionImpl());
+        System.out.println("createEmployee");
+        employee.setDivisionId(new DivisionImpl());
         boolean result_1 = employeeService.createEmployee(employee, result);
         assertEquals(false, result_1);
-        
+
         employee.setDivisionId(new DivisionImpl());
         employee.getDivisionId().setId(employee.getId());
-        
+
         expect(mockDivisionDao.read(employee.getId())).andReturn(null);
-    	replay(mockDivisionDao);
+        replay(mockDivisionDao);
         boolean result_2 = employeeService.createEmployee(employee, result);
         assertEquals(false, result_2);
         resetToNice(mockDivisionDao);
-        
-        expect(mockDivisionDao.read(employee.getId())).andReturn(employee.getDivisionId());
-    	replay(mockDivisionDao);
+
+        expect(mockDivisionDao.read(employee.getId())).andReturn(
+                employee.getDivisionId());
+        replay(mockDivisionDao);
         boolean result_3 = employeeService.createEmployee(employee, result);
         assertEquals(true, result_3);
         verify(mockDivisionDao);
@@ -90,9 +90,9 @@ public class EmployeeServiceImplTest {
      */
     @Test
     public void testReadEmployee() {
-    	System.out.println("readEmployee");
-    	expect(mockEmployeeDao.read(employee.getId())).andReturn(employee);
-    	replay(mockEmployeeDao);
+        System.out.println("readEmployee");
+        expect(mockEmployeeDao.read(employee.getId())).andReturn(employee);
+        replay(mockEmployeeDao);
         IEmployee result_1 = employeeService.readEmployee(employee.getId());
         assertEquals(employee.getFirstName(), result_1.getFirstName());
         verify(mockEmployeeDao);
@@ -104,33 +104,35 @@ public class EmployeeServiceImplTest {
      */
     @Test
     public void testUpdateEmployee() {
-    	System.out.println("updateEmployee");
-    	expect(mockEmployeeDao.read(employee.getId())).andReturn(null);
-    	replay(mockEmployeeDao);
-    	boolean result_1 = employeeService.updateEmployee(employee, result);
+        System.out.println("updateEmployee");
+        expect(mockEmployeeDao.read(employee.getId())).andReturn(null);
+        replay(mockEmployeeDao);
+        boolean result_1 = employeeService.updateEmployee(employee, result);
         assertEquals(false, result_1);
         verify(mockEmployeeDao);
         resetToNice(mockEmployeeDao);
-        
+
         employee.setDivisionId(new DivisionImpl());
         employee.getDivisionId().setId(employee.getId());
-        
+
         expect(mockEmployeeDao.read(employee.getId())).andReturn(employee);
-        expect(mockDivisionDao.read(employee.getDivisionId().getId())).andReturn(null);
+        expect(mockDivisionDao.read(employee.getDivisionId().getId()))
+                .andReturn(null);
         replay(mockEmployeeDao);
-    	replay(mockDivisionDao);
-    	boolean result_2 = employeeService.updateEmployee(employee, result);
+        replay(mockDivisionDao);
+        boolean result_2 = employeeService.updateEmployee(employee, result);
         assertEquals(false, result_2);
         verify(mockDivisionDao);
         verify(mockEmployeeDao);
         resetToNice(mockDivisionDao);
         resetToNice(mockEmployeeDao);
-        
+
         expect(mockEmployeeDao.read(employee.getId())).andReturn(employee);
-        expect(mockDivisionDao.read(employee.getDivisionId().getId())).andReturn(employee.getDivisionId());
+        expect(mockDivisionDao.read(employee.getDivisionId().getId()))
+                .andReturn(employee.getDivisionId());
         replay(mockEmployeeDao);
-    	replay(mockDivisionDao);
-    	boolean result_3 = employeeService.updateEmployee(employee, result);
+        replay(mockDivisionDao);
+        boolean result_3 = employeeService.updateEmployee(employee, result);
         assertEquals(true, result_3);
         verify(mockDivisionDao);
         verify(mockEmployeeDao);
@@ -142,17 +144,17 @@ public class EmployeeServiceImplTest {
      */
     @Test
     public void testDeleteEmployee() {
-    	System.out.println("deleteEmployee");
-    	expect(mockEmployeeDao.read(employee.getId())).andReturn(null);
-    	replay(mockEmployeeDao);
+        System.out.println("deleteEmployee");
+        expect(mockEmployeeDao.read(employee.getId())).andReturn(null);
+        replay(mockEmployeeDao);
         boolean result_1 = employeeService.deleteEmployee(employee.getId());
         assertEquals(false, result_1);
         verify(mockEmployeeDao);
         resetToNice(mockEmployeeDao);
-        
+
         System.out.println("deleteEmployee");
-    	expect(mockEmployeeDao.read(employee.getId())).andReturn(employee);
-    	replay(mockEmployeeDao);
+        expect(mockEmployeeDao.read(employee.getId())).andReturn(employee);
+        replay(mockEmployeeDao);
         boolean result_2 = employeeService.deleteEmployee(employee.getId());
         assertEquals(true, result_2);
         verify(mockEmployeeDao);
@@ -164,23 +166,23 @@ public class EmployeeServiceImplTest {
      */
     @Test
     public void testFindAll() {
-    	System.out.println("findAll");
-    	List<EmployeeImpl> collection = new ArrayList<EmployeeImpl>();
-    	collection.add(employee);
-    	collection.add(employee);
-    	
-    	expect(mockEmployeeDao.findAll()).andReturn(collection);
-    	replay(mockEmployeeDao);
-    	List<IEmployee> result_1 = employeeService.findAll();
-    	resetToNice(mockEmployeeDao);
-    	
-    	collection.add(employee);
-    	expect(mockEmployeeDao.findAll()).andReturn(collection);
-    	replay(mockEmployeeDao);
+        System.out.println("findAll");
+        List<EmployeeImpl> collection = new ArrayList<EmployeeImpl>();
+        collection.add(employee);
+        collection.add(employee);
+
+        expect(mockEmployeeDao.findAll()).andReturn(collection);
+        replay(mockEmployeeDao);
+        List<IEmployee> result_1 = employeeService.findAll();
+        resetToNice(mockEmployeeDao);
+
+        collection.add(employee);
+        expect(mockEmployeeDao.findAll()).andReturn(collection);
+        replay(mockEmployeeDao);
         List<IEmployee> result_2 = employeeService.findAll();
-        
-    	assertEquals(result_1.size()+1, result_2.size());
-    	verify(mockEmployeeDao);
+
+        assertEquals(result_1.size() + 1, result_2.size());
+        verify(mockEmployeeDao);
         System.out.println("findAll - OK");
     }
 
@@ -189,15 +191,15 @@ public class EmployeeServiceImplTest {
      */
     @Test
     public void testSearch() {
-    	System.out.println("search");
-    	String searchQuery = employee.getFirstName();
-    	List<IEmployee> collection = new ArrayList<IEmployee>();
-    	collection.add(employee);
-    	expect(mockEmployeeDao.search(searchQuery)).andReturn(collection);
-    	replay(mockEmployeeDao);
-    	List<IEmployee> result_1 = employeeService.search(searchQuery);
-    	assertEquals(searchQuery, result_1.get(0).getFirstName());
-    	verify(mockEmployeeDao);
-    	System.out.println("search - OK");
+        System.out.println("search");
+        String searchQuery = employee.getFirstName();
+        List<IEmployee> collection = new ArrayList<IEmployee>();
+        collection.add(employee);
+        expect(mockEmployeeDao.search(searchQuery)).andReturn(collection);
+        replay(mockEmployeeDao);
+        List<IEmployee> result_1 = employeeService.search(searchQuery);
+        assertEquals(searchQuery, result_1.get(0).getFirstName());
+        verify(mockEmployeeDao);
+        System.out.println("search - OK");
     }
 }
