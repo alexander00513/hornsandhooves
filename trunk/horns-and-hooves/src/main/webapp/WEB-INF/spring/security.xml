@@ -1,0 +1,39 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                            http://www.springframework.org/schema/security
+                            http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+    <http auto-config='true' access-denied-page="/WEB-INF/velocity/error403.vsl">  
+        <intercept-url pattern="/" access="ROLE_ANONYMOUS" />
+        
+        <intercept-url pattern="/employee/read/*" access="ROLE_USER" />
+        <intercept-url pattern="/division" access="ROLE_USER" />
+        <intercept-url pattern="/division/read/*" access="ROLE_USER" />
+
+        <intercept-url pattern="/division/create" access="ROLE_ADMIN" />
+        <intercept-url pattern="/division/update/*" access="ROLE_ADMIN" />
+        <intercept-url pattern="/delete/*" access="ROLE_ADMIN" />
+        <intercept-url pattern="/employee/create" access="ROLE_ADMIN" />   
+        <intercept-url pattern="/employee/update/*" access="ROLE_ADMIN" />
+        <intercept-url pattern="/division/delete/*" access="ROLE_ADMIN" />
+
+        <anonymous username="guest" granted-authority="ROLE_ANONYMOUS" />
+        <remember-me />
+        
+        <form-login login-page="/" default-target-url="/" authentication-failure-url="/" />
+        <logout logout-url="/logout" logout-success-url="/" />
+        
+    </http>
+    
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="user" password="user" authorities="ROLE_ANONYMOUS, ROLE_USER" />
+                <user name="admin" password="admin" authorities="ROLE_ANONYMOUS, ROLE_USER, ROLE_ADMIN" />
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+  
+</beans:beans>

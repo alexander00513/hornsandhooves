@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:p="http://www.springframework.org/schema/p"
+      xmlns:aop="http://www.springframework.org/schema/aop"
+      xmlns:tx="http://www.springframework.org/schema/tx"
+      xmlns:mvc="http://www.springframework.org/schema/mvc"
+      xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+      http://www.springframework.org/schema/aop 
+      http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+      http://www.springframework.org/schema/tx 
+      http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+      http://www.springframework.org/schema/mvc 
+      http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+    
+    <!-- Импортируем настройки контроллеров -->
+    <import resource="controllers.xml" /> 
+    
+    <!-- настройки velocity -->    
+    <bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <property name="resourceLoaderPath" value="/WEB-INF/velocity/" />
+        <property name="velocityProperties">	
+            <props>	
+                <prop key="input.encoding">UTF-8</prop>	
+                <prop key="output.encoding">UTF-8</prop>
+            </props>	
+        </property>
+    </bean> 
+    
+    <!-- Настройка представления -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+        <property name="cache" value="false" />
+        <property name="prefix" value="" />
+        <property name="suffix" value=".vsl" />
+        <property name="contentType" value="text/html;charset=UTF-8" />
+        <property name="exposeSpringMacroHelpers" value="true" />
+        <property name="attributesMap">
+            <map>
+                <entry key="url"><bean class="com.hornsandhooves.common.tools.Url" /></entry>
+                <entry key="command"><bean class="com.hornsandhooves.common.tools.Command" /></entry>
+                <entry key="auth"><bean class="com.hornsandhooves.common.tools.VelocityUserDetails" /></entry> 
+            </map>
+        </property>
+        <property name="toolboxConfigLocation" value="/WEB-INF/toolbox.xml" />
+    </bean>
+    
+    <!-- Разрешаем использование аннотаций Spring MVC (то есть @Controller и.т.д) -->       
+    <mvc:annotation-driven />
+    
+    <!-- Настройка расположения ресурсов -->
+    <mvc:resources mapping="/themes/**" location="/themes/**" />
+    <mvc:resources mapping="/js/**" location="/js/**" />
+    
+    <!-- Настройка бина локализации -->
+    <bean id="messageSource"
+        class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>classpath:localization/layout</value>
+                <value>classpath:localization/division</value>
+                <value>classpath:localization/employee</value>
+                <value>classpath:localization/division_errors</value>
+                <value>classpath:localization/employee_errors</value>
+                <value>classpath:localization/messages</value>
+            </list>
+        </property>
+        <property name="defaultEncoding" value="UTF-8" />
+        <property name="fileEncodings" value="UTF-8" />
+        <property name="cacheSeconds" value="0" />
+    </bean>
+    
+    <!-- Настройка бина тем -->
+    <bean id="themeSource"
+        class="org.springframework.ui.context.support.ResourceBundleThemeSource">
+        <property name="basenamePrefix" value="themes/theme_" />
+    </bean>
+    
+    <!-- Настройка перехватчиков для локализации и тем -->
+    <mvc:interceptors>
+        <bean id="localeChangeInterceptor"
+            class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+            <property name="paramName" value="lang" />
+        </bean>
+        <bean id="themeChangeInterceptor"
+            class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
+            <property name="paramName" value="theme" />
+        </bean>
+    </mvc:interceptors>
+
+    <!-- Настройка локализации поумолчанию -->
+    <bean id="localeResolver"
+        class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+        <property name="defaultLocale" value="ru"/>
+    </bean>
+
+    <!-- Настройка темы поумолчанию -->
+    <bean id="themeResolver"
+        class="org.springframework.web.servlet.theme.CookieThemeResolver">
+        <property name="defaultThemeName" value="default" />
+    </bean>
+    
+</beans>

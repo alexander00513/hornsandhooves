@@ -1,0 +1,35 @@
+#set($title = "#division_create_title()")
+#set($menu = "#division_create_menu()")
+#set($content = "#division_create_content()")
+#parse("layout.vsl")
+
+#macro(division_create_title)
+    - #springMessage("division.create.title")
+#end
+
+#macro(division_create_menu)
+    <li><a href="#springUrl("/")$url.DIVISION_LIST_URL" title="">#springMessage("divisionList")</a></li>
+    <li><a href="#springUrl("/")$url.DIVISION_LIST_URL/$url.DIVISION_CREATE_URL" class="active" title="">#springMessage("createDivision")</a></li>
+    <li><a href="#springUrl("/")" title="">#springMessage("employeeList")</a></li>
+    <li><a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL" title="">#springMessage("createEmployee")</a></li>
+#end
+
+#macro(division_create_content)
+<h3>#springMessage("division.create.title")</h3>
+
+<form method="POST" commandName="$command.DIVISION_CREATE_COMMAND">
+    <table>
+        <tr>
+            <td>#springMessage("division.create.name")</td>
+            <td>#springFormInput("divisionCreateForm.title", $!divisionCreateForm.title)</td>
+            <td class="error">#springShowErrors("")</td>  
+        </tr>
+        <tr>
+            <td><input type="submit" id="input2" value="#springMessage("division.create.save")" /></td>
+            <td><a href="#springUrl("/")$url.DIVISION_LIST_URL"><input type="button" id="input2" value="#springMessage("division.create.cancel")" /></a></td>
+        </tr>
+    </table>
+</form>
+#end
+
+

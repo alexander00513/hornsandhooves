@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolbox>
+    <tool>
+      <key>link</key>
+      <scope>request</scope>
+      <class>org.apache.velocity.tools.view.tools.LinkTool</class>
+    </tool>
+    <tool>
+        <key>pager</key>
+        <scope>request</scope>
+        <class>org.apache.velocity.tools.view.PagerTool</class>
+    </tool>
+</toolbox>

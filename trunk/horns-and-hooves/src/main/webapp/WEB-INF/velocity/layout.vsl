@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>#springMessage("title") 
+        #if($auth.anyGranted("ROLE_USER", "ROLE_ADMIN"))
+            $!title
+        #end
+    </title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="#springUrl("/")#springTheme("theme")" type="text/css" media="screen, projection" />
+    <script type="text/javascript" src="#springUrl("/")js/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="#springUrl("/")js/form.js"></script>
+</head>
+<body>
+<div id="header">
+        <div class="logo"><a href="#springUrl("/")"><h1>#springMessage("title")</h1></a></div>
+        <div class="dopmenu">
+            #if($!request.getParameter("searchQuery") && $!request.getParameter("searchQuery") != "")
+                $!dopmenu
+            #else
+                <a href="?lang=en">EN</a>
+                <a href="?lang=ru">RU</a><br />
+                <a href="?theme=default">#springMessage("default")</a> | 
+                <a href="?theme=first">#springMessage("first")</a>
+            #end
+        </div>
+</div>
+<div id="sub-header">
+	<ul id="menu">
+            #if($auth.anyGranted("ROLE_USER", "ROLE_ADMIN"))
+                #if($menu != 0)
+                    $menu
+                #else
+                    <li><a href="#springUrl("/")$url.DIVISION_LIST_URL" title="">#springMessage("divisionList")</a></li>
+                    <li><a href="#springUrl("/")$url.DIVISION_LIST_URL/$url.DIVISION_CREATE_URL" title="">#springMessage("createDivision")</a></li>
+                    <li><a href="#springUrl("/")" title="">#springMessage("employeeList")</a></li>
+                    <li><a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL" title="">#springMessage("createEmployee")</a></li>
+                #end
+            #end
+	</ul>
+        <form id="search" method="POST" action="#springUrl("/")$url.SEARCH_URL">
+            #if($auth.anyGranted("ROLE_USER", "ROLE_ADMIN"))
+                $!search
+            #end
+        </form>
+</div>
+<div id="content">
+	<div id="colOne">                
+		<div id="authorization_form">
+                    <h3>#springMessage("authorizationForm")</h3>
+                    #if($auth.noneGranted("ROLE_USER", "ROLE_ADMIN"))
+                        <form method="POST" action="#springUrl("/")j_spring_security_check">
+                            <table>
+                                <tr>
+                                    <td align="left">#springMessage("login")</td>
+                                    <td><input type="text" name="j_username" /></td>
+                                </tr>
+                                <tr>
+                                    <td align="left">#springMessage("password")</td>
+                                    <td><input type="password" name="j_password" /></td>
+                                </tr>
+                                <tr>
+                                    <td>#springMessage("remember")</td>
+                                    <td><input type="checkbox" name="_spring_security_remember_me" /></td>
+                                </tr>
+                                <tr>
+                                    <td><input name="submit" type="submit" id="input2" value="#springMessage("signIn")" /></td>
+                                </tr>
+                            </table>
+    
+                        </form>
+                    #end
+                    #if($auth.anyGranted("ROLE_USER") && !$auth.anyGranted("ROLE_ADMIN"))
+                        <div class="greeting">#springMessage("greeting"), $auth.getPrincipal()!</div><br />
+                        #springMessage("descriptionCredentialsReader1").<br />
+                        #springMessage("descriptionCredentialsReader2").<br /><br />  
+                        <a href="#springUrl("/")logout" />#springMessage("logout")</a>
+                    #end
+                    #if($auth.anyGranted("ROLE_ADMIN"))
+                        <div class="greeting">#springMessage("greeting"), $auth.getPrincipal()!</div><br />
+                        #springMessage("descriptionCredentialsEditor1").<br />
+                        #springMessage("descriptionCredentialsEditor2").<br /><br />  
+                        <a href="#springUrl("/")logout" />#springMessage("logout")</a>
+                    #end
+		</div>
+                #if($auth.anyGranted("ROLE_USER", "ROLE_ADMIN"))
+                    <div class="box">
+                            <h3>#springMessage("divisionMenu")</h3>
+                            <ul class="bottom">
+                                    <li class="first"><a href="#springUrl("/")$url.DIVISION_LIST_URL">#springMessage("divisionList")</a></li>
+                                    #if($auth.anyGranted("ROLE_ADMIN"))
+                                        <li><a href="#springUrl("/")$url.DIVISION_LIST_URL/$url.DIVISION_CREATE_URL">#springMessage("createDivision")</a></li>
+                                    #end
+                            </ul>
+                    </div>
+                    <div class="box">
+                            <h3>#springMessage("employeeMenu")</h3>
+                            <ul class="bottom">
+                                    <li><a href="#springUrl("/")">#springMessage("employeeList")</a></a>
+                                    #if($auth.anyGranted("ROLE_ADMIN"))
+                                        <li><a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL">#springMessage("createEmployee")</a></li>
+                                    #end
+                            </ul>
+                    </div>
+                #end
+	</div>
+	<div id="colTwo">
+            #if($auth.noneGranted("ROLE_USER", "ROLE_ADMIN"))
+                <br /><p>#springMessage("welcomeAuthorization").</p><br />
+            #end
+            #if($auth.anyGranted("ROLE_USER", "ROLE_ADMIN"))
+		$!content
+            #end
+	</div>
+</div>
+<div id="footer">
+	<p>Copyright (c) 2012 #springMessage("title"). All rights reserved. 
+            Design by <a href="http://freecsstemplates.org/">Free CSS Templates</a>.<br />
+            Courtesy <a href="http://www.openwebdesign.org">Open Web Design</a>
+            Thanks to <a href="http://www.dubaiapartments.biz/">Dubai Hotels</a>
+        </p>
+</div>
+</body>
+</html>

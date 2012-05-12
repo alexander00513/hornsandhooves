@@ -1,0 +1,39 @@
+#set($title = "#division_update_title()")
+#set($menu = 0)
+#set($content = "#division_update_content()")
+#parse("layout.vsl")
+
+#macro(division_update_title)
+    - #springMessage("division.update.title")
+#end
+
+#macro(division_update_content)
+#if($empty)
+    #springMessage("division.update.notFound")<br /><br />
+    <a href="#springUrl("/")$url.DIVISION_LIST_URL"><input type="button" id="input2" value="Назад" /></a>
+#else
+    <h3>#springMessage("division.update.title")</h3>
+
+    <form method="POST" commandName="$command.DIVISION_UPDATE_COMMAND">
+        <table>
+            <tr>
+                <td><input type="hidden" name="id" value="$divisionUpdateForm.id" /></td>
+            </tr>
+            <tr>
+                <td>#springMessage("division.update.name")</td>
+                <td>#springFormInput("divisionUpdateForm.title", $divisionUpdateForm.title)</td>
+                <td class="error">#springShowErrors("")</td>  
+            </tr>
+            <tr>
+                <td><input type="submit" id="input2" value="#springMessage("division.update.save")" /></td>
+                <td>
+                    <a href="#springUrl("/")$url.DIVISION_LIST_URL?index=$!request.getParameter("index")">
+                    <input type="button" id="input2" value="#springMessage("division.update.cancel")" /></a>
+                </td>
+            </tr>
+        </table>
+    </form>
+#end
+#end
+
+

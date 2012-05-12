@@ -1,0 +1,93 @@
+#set($title = "#employee_update_title()")
+#set($menu = 0)
+#set($content = "#employee_update_content()")
+#parse("layout.vsl")
+
+#macro(employee_update_title)
+    - #springMessage("update.title")
+#end
+
+#macro(employee_update_content)
+#if($empty)
+    #springMessage("update.notFound")<br /><br />
+    <a href="#springUrl("/")"><input type="button" id="input2" value="#springMessage("update.back")" /></a>
+#else
+    <h3>#springMessage("update.title")</h3>
+
+    <form id="cancelForm" method="POST" action="#springUrl("/")$url.SEARCH_URL">
+        <input type="hidden" name="index" value="$!request.getParameter("index")" />
+        <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+    </form>
+
+    <form method="POST" action="#springUrl("/")$url.EMPLOYEE_UPDATE_URL/$employeeUpdateForm.id" commandName="$command.EMPLOYEE_UPDATE_COMMAND">
+        <table>
+            <tr>
+                <td></td>
+                <td><input type="hidden" name="id" value="$employeeUpdateForm.id" /></td>
+            </tr>
+            <tr>
+                <td>#springMessage("update.firstName")</td>
+                <td>#springFormInput("employeeUpdateForm.lastName", $employeeUpdateForm.lastName)</td>
+                <td class="error">#springShowErrors("")</td>
+            </tr>
+            <tr>
+                <td>#springMessage("update.lastName")</td>
+                <td>#springFormInput("employeeUpdateForm.firstName", $employeeUpdateForm.firstName)</td>
+                <td class="error">#springShowErrors("")</td>
+            </tr>
+            <tr>
+                <td>#springMessage("update.salary")</td>
+                <td>#springFormInput("employeeUpdateForm.salary", $employeeUpdateForm.salary)</td>
+                <td class="error">#springShowErrors("")</td>
+            </tr>
+            <tr>
+                <td>#springMessage("update.birthdate")</td>
+                <td>#springFormInput("employeeUpdateForm.birthdate", $employeeUpdateForm.birthdate)</td>
+                <td class="error">#springShowErrors("")</td>
+            </tr>
+            <tr>
+                <td>#springMessage("update.division")</td>
+                <td>
+                    #springBind("employeeUpdateForm.divisionId")
+                    <select name="divisionId" class="select" />
+                        #foreach($division in $divisionList)
+                            #if($division.id == $employeeUpdateForm.divisionId)
+                                <option class="select_o" value="$!division.id" selected="true">$division.title</option>
+                            #else
+                                <option class="select_o" value="$!division.id">$division.title</option>
+                            #end
+                        #end
+                    </select>
+                </td>
+                #foreach($error in $status.errorMessages)
+                    <td class="error">$error</td>
+                #end
+            </tr>
+            <tr>
+                <td>#springMessage("update.dismissed")</td>
+                <td>
+                    <input type="hidden" name="active" class="check" />
+                    #if($employeeUpdateForm.active)
+                        <input type="checkbox" class="disabled" onclick="checkbox()" />
+                    #else
+                        <input type="checkbox" checked="checked" class="disabled" onclick="checkbox()" />
+                    #end
+                </td>
+            </tr>
+            <tr>    
+                <td><input type="submit" id="input2" value="#springMessage("update.save")" /></td>
+                #if($request.getParameter("searchQuery"))
+                    <td><a href="#springUrl("/")$url.SEARCH_URL" onclick="$('#cancelForm').submit();return false;">
+                    <input type="button" id="input2" value="#springMessage("update.cancel")" /></a></td>
+                #else
+                    <td><a href="#springUrl("/")?index=$!request.getParameter("index")">
+                    <input type="button" id="input2" value="#springMessage("update.cancel")" /></a></td>
+                #end
+            </tr>
+        </table>
+    </form>   
+    <script type="text/javascript">
+        checkbox();
+    </script>
+#end
+#end

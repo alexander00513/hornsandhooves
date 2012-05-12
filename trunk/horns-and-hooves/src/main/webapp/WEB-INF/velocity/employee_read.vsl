@@ -1,0 +1,64 @@
+#set($title = "#employee_read_title()")
+#set($menu = 0)
+#set($content = "#employee_read_content()")
+#parse("layout.vsl")
+
+#macro(employee_read_title)
+    - #springMessage("read.title")
+#end
+
+#macro(employee_read_content)
+#if($empty)
+    #springMessage("read.notFound")<br /><br />
+    <a href="#springUrl("/")"><input type="button" id="input2" value="#springMessage("read.back")" /></a>
+#else
+    <h3>#springMessage("read.title")</h3>
+
+    <table>
+        <tr> 
+            <td>#springMessage("read.firstName"):</td>
+            <td>$employee.firstName</td>
+        </tr>
+        <tr>
+            <td>#springMessage("read.lastName"):</td>
+            <td>$employee.lastName</td>
+        </tr>
+        <tr>
+            <td>#springMessage("read.salary"):</td>
+            <td>$employee.salary</td>
+        </tr>
+        <tr>
+            <td>#springMessage("read.birthdate"):</td>
+            <td>$employee.birthdate</td>
+        </tr>
+        <tr>
+            <td>#springMessage("read.division"):</td>
+            <td>$employee.division.title</td>
+        </tr>    
+        <tr>
+            <td>#springMessage("read.status")</td>
+            #if($employee.active)
+                <td>#springMessage("read.works")</td>
+            #else
+                <td>#springMessage("read.dismissed")</td>
+            #end
+        </tr>
+        <tr>
+            #if($request.getParameter("searchQuery"))
+                <td>
+                    <form method="POST" action="#springUrl("/")$url.SEARCH_URL">
+                        <input type="hidden" name="index" value="$!request.getParameter("index")" />
+                        <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+                        <input type="submit" id="input2" value="#springMessage("read.back")" />
+                    </form>
+                </td>
+            #else
+                <td>    
+                    <a href="#springUrl("/")?index=$!request.getParameter("index")">
+                    <input type="button" id="input2" value="#springMessage("read.back")" /></a>
+                </td>
+            #end
+        </tr>
+    </table>
+#end
+#end
