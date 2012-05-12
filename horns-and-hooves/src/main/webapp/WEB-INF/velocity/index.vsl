@@ -1,0 +1,212 @@
+#set($title = "#index_title()")
+#set($dopmenu = "#index_dopmenu()")
+#set($menu = "#index_menu()")
+#set($search = "#index_search()")
+#set($content = "#index_content()")
+#parse("layout.vsl")
+
+#macro(index_title)
+    - #springMessage("index.title")
+#end
+
+#macro(index_dopmenu)
+    <form id="dopmenuFormEn" method="POST" action="">
+        <input type="hidden" name="searchQuery" value="$!request.getParameter("searchQuery")" />
+        <input type="hidden" name="lang" value="en" />
+    </form>
+    <a href="?lang=en" onclick="$('#dopmenuFormEn').submit();return false;">EN</a>
+    <form id="dopmenuFormRu" method="POST" action="">
+        <input type="hidden" name="searchQuery" value="$!request.getParameter("searchQuery")" />
+        <input type="hidden" name="lang" value="ru" />
+    </form>
+    <a href="?lang=ru" onclick="$('#dopmenuFormRu').submit();return false;">RU</a><br />
+    <form id="dopmenuFormDef" method="POST" action="">
+        <input type="hidden" name="searchQuery" value="$!request.getParameter("searchQuery")" />
+        <input type="hidden" name="theme" value="default" />
+    </form>
+    <a href="?theme=default" onclick="$('#dopmenuFormDef').submit();return false;">#springMessage("default")</a> | 
+    <form id="dopmenuFormFir" method="POST" action="">
+        <input type="hidden" name="searchQuery" value="$!request.getParameter("searchQuery")" />
+        <input type="hidden" name="theme" value="first" />
+    </form>
+    <a href="?theme=first" onclick="$('#dopmenuFormFir').submit();return false;">#springMessage("first")</a>
+#end
+
+#macro(index_menu)
+    <li><a href="#springUrl("/")$url.DIVISION_LIST_URL" title="">#springMessage("divisionList")</a></li>
+    #if($auth.anyGranted("ROLE_ADMIN"))
+        <li><a href="#springUrl("/")$url.DIVISION_LIST_URL/$url.DIVISION_CREATE_URL" title="">#springMessage("createDivision")</a></li>
+    #end
+    <li><a href="#springUrl("/")" class="active" title="">#springMessage("employeeList")</a></li>
+    #if($auth.anyGranted("ROLE_ADMIN"))
+        <li><a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL" title="">#springMessage("createEmployee")</a></li>
+    #end
+#end
+
+#macro(index_search)
+    <fieldset>
+        <input name="searchQuery" value="$!searchQuery" type="text" id="input1" />
+        <input type="submit" id="input2" value="#springMessage("index.search")" />
+    </fieldset>
+#end
+
+#macro(index_content)
+
+#if($!request.getParameter("searchQuery") && $!request.getParameter("searchQuery") != "")
+    $pager.setItems($employeeListSearch)
+#else
+    $pager.setItems($employeeList)
+#end
+$pager.setItemsPerPage(30)
+$pager.setup($request)
+
+#if($pager.hasItems())
+    <h3>#springMessage("index.title")</h3>
+    <table>
+        #foreach($employee in $pager.page)
+            <tr> 
+                #if($employee.active)
+                    <td class="works"></td>
+                #else
+                    <td class="dismissed"></td>
+                #end
+                <td>
+                    #if($request.getParameter("searchQuery"))
+                        <form id="flnForm_$employee.id" method="POST" action="$url.EMPLOYEE_READ_URL/$employee.id">
+                            <input type="hidden" name="index" value="$!request.getParameter("index")" />
+                            <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+                        </form>
+                        <a href="$url.EMPLOYEE_READ_URL/$employee.id" onclick="$('#flnForm_$employee.id').submit();return false;">   
+                            $employee.lastName
+                            $employee.firstName
+                        </a>    
+                    #else
+                        <a href="$url.EMPLOYEE_READ_URL/$employee.id?index=$pager.getIndex()">   
+                            $employee.lastName
+                            $employee.firstName
+                        </a>
+                    #end
+                </td>
+                <td>
+                    #foreach ($division in $divisionList)
+                        #if($employee.divisionId.id == $division.id)
+                            ($division.title)                        
+                        #end
+                    #end
+                </td>
+                #if($auth.anyGranted("ROLE_ADMIN"))
+                    <td class="edit"></td>
+                    <td>
+                        #if($request.getParameter("searchQuery"))
+                            <form id="updForm_$employee.id" method="POST" action="$url.SEARCH_EMPLOYEE_UPDATE_URL/$employee.id">
+                                <input type="hidden" name="index" value="$!request.getParameter("index")" />
+                                <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+                            </form>
+                            <a href="$url.EMPLOYEE_UPDATE_URL/$employee.id?index=$pager.getIndex()" onclick="$('#updForm_$employee.id').submit();return false;">#springMessage("index.edit")</a>
+                        #else
+                            <a href="$url.EMPLOYEE_UPDATE_URL/$employee.id?index=$pager.getIndex()">#springMessage("index.edit")</a>
+                        #end
+                    </td>
+                    <td class="delete"></td>
+                    <td>
+                        #if($request.getParameter("searchQuery"))
+                            <a href="$url.DELETE_URL/$employee.id?index=$pager.getIndex()&searchQuery=$request.getParameter("searchQuery")" onclick="confirmDelete()">#springMessage("index.delete")</a>  
+                        #else
+                            <a href="$url.DELETE_URL/$employee.id?index=$pager.getIndex()" onclick="confirmDelete()">#springMessage("index.delete")</a>
+                        #end
+                    </td>
+                    <script>
+                        function confirmDelete() {
+                            if(confirm('#springMessage("delete")')) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    </script>
+                #end
+            </tr>
+        #end
+    </table><br />
+    #if($auth.anyGranted("ROLE_ADMIN"))
+        <div class="createButton">
+            #if($request.getParameter("searchQuery"))
+                <a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL?index=$!request.getParameter("index")&searchQuery=$request.getParameter("searchQuery")">
+                    <input type="button" id="input2" value="#springMessage("index.create")" />
+                </a>
+            #else
+                <a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL?index=$!request.getParameter("index")">
+                    <input type="button" id="input2" value="#springMessage("index.create")" />
+                </a>
+            #end
+        </div><br /><br />
+    #end
+    #if($!request.getParameter("searchQuery") && $!request.getParameter("searchQuery") != "")
+        <div class="pager">
+            #if ($pager.pagesAvailable > 1)
+                #set($pagelink = $link.self.param("show",$!pager.itemsPerPage))
+                #if($pager.prevIndex)
+                    <form id="pagerFormFirst" method="POST" action="#springUrl("/")$url.SEARCH_URL?show=$!pager.itemsPerPage&index=0">
+                        <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+                    </form>
+                    <a href="$pagelink.param('index',0)" onclick="$('#pagerFormFirst').submit();return false;">#springMessage("index.first")</a>
+                    <form id="pagerFormPrev" method="POST" action="#springUrl("/")$url.SEARCH_URL?show=$!pager.itemsPerPage&index=$!pager.prevIndex">
+                        <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+                    </form>
+                    <a href="$pagelink.param('index',$!pager.prevIndex)" onclick="$('#pagerFormPrev').submit();return false;">#springMessage("index.prev")</a>
+                #end
+                #foreach($index in $pager.slip)
+                    #if($index == $pager.index)
+                        $pager.pageNumber
+                    #else 
+                        <form id="form_$!pager.getPageNumber($index)" method="POST" action="#springUrl("/")$url.SEARCH_URL?show=$!pager.itemsPerPage&index=$!index">
+                            <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+                        </form>
+                        <a href="$pagelink.param('index',$!index)" onclick="$('#form_$!pager.getPageNumber($index)').submit();return false;">$!pager.getPageNumber($index)</a>
+                    #end
+                #end
+                #if($pager.nextIndex)
+                    #set($last = ($pager.getPageNumber($pager.getTotal()) - 1) * $pager.getItemsPerPage())
+                    <form id="pagerFormNext" method="POST" action="#springUrl("/")$url.SEARCH_URL?show=$!pager.itemsPerPage&index=$!pager.nextIndex">
+                        <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+                    </form>
+                    <a href="$pagelink.param('index',$!pager.nextIndex)" onclick="$('#pagerFormNext').submit();return false;">#springMessage("index.next")</a>
+                    <form id="pagerFormLast" method="POST" action="#springUrl("/")$url.SEARCH_URL?show=$!pager.itemsPerPage&index=$last">
+                        <input type="hidden" name="searchQuery" value="$request.getParameter("searchQuery")" />
+                    </form>
+                    <a href="$pagelink.param('index',$last)" onclick="$('#pagerFormLast').submit();return false;">#springMessage("index.last")</a><br /><br />
+                    #springMessage("index.showing") $!pager.pageDescription
+                #end
+            #end
+        </div>
+    #else
+        <div class="pager">
+            #if ($pager.pagesAvailable > 1)
+                #set($pagelink = $link.self.param("show",$!pager.itemsPerPage))
+                #if($pager.prevIndex)
+                    <a href="$pagelink.param('index',0)">#springMessage("index.first")</a>
+                    <a href="$pagelink.param('index',$!pager.prevIndex)">#springMessage("index.prev")</a>
+                #end
+                #foreach($index in $pager.slip)
+                    #if($index == $pager.index)
+                        $pager.pageNumber
+                    #else
+                        <a href="$pagelink.param('index',$!index)">$!pager.getPageNumber($index)</a>
+                    #end
+                #end
+                #if($pager.nextIndex)
+                    #set($last = ($pager.getPageNumber($pager.getTotal()) - 1) * $pager.getItemsPerPage())
+                    <a href="$pagelink.param('index',$!pager.nextIndex)">#springMessage("index.next")</a>
+                    <a href="$pagelink.param('index',$last)">#springMessage("index.last")</a><br /><br />
+                    #springMessage("index.showing") $!pager.pageDescription
+                #end
+            #end
+        </div>
+    #end
+#else
+    <p>#springMessage("index.notFound")</p><br />
+    #if($auth.anyGranted("ROLE_ADMIN"))
+        <a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL"><input type="button" id="input2" value="#springMessage("index.create")" /></a>
+    #end
+#end
+#end

@@ -1,0 +1,30 @@
+#set($title = "#division_read_title()")
+#set($menu = 0)
+#set($content = "#division_read_content()")
+#parse("layout.vsl")
+
+#macro(division_read_title)
+    - #springMessage("division.read.title")
+#end
+
+#macro(division_read_content)
+#if($empty)
+    #springMessage("division.read.notFound")<br /><br />
+    <a href="#springUrl("/")$url.DIVISION_LIST_URL"><input type="button" id="input2" value="#springMessage("division.read.back")" /></a>
+#else
+    <h3>#springMessage("division.read.title")</h3>
+
+    <table>
+        <tr> 
+            <td>#springMessage("division.read.name"):</td>
+            <td>$division.title</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="#springUrl("/")$url.DIVISION_LIST_URL?index=$!request.getParameter("index")">
+                <input type="button" id="input2" value="#springMessage("division.read.back")" /></a>
+            </td>
+        </tr>
+    </table>
+#end
+#end

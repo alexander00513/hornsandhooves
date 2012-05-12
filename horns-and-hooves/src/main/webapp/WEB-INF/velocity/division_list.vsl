@@ -1,0 +1,92 @@
+#set($title = "#division_list()")
+#set($menu = "#division_menu()")
+#set($content = "#division_content()")
+#parse("layout.vsl")
+
+#macro(division_list)
+    - #springMessage("division.title")
+#end
+
+#macro(division_menu)
+    <li><a href="#springUrl("/")$url.DIVISION_LIST_URL" class="active" title="">#springMessage("divisionList")</a></li>
+    #if($auth.anyGranted("ROLE_ADMIN"))
+        <li><a href="#springUrl("/")$url.DIVISION_LIST_URL/$url.DIVISION_CREATE_URL" title="">#springMessage("createDivision")</a></li>
+    #end
+    <li><a href="#springUrl("/")" title="">#springMessage("employeeList")</a></li>
+    #if($auth.anyGranted("ROLE_ADMIN"))
+        <li><a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL" title="">#springMessage("createEmployee")</a></li>
+    #end
+#end
+
+#macro(division_content)
+$pager.setItems($divisionList)
+$pager.setItemsPerPage(30)
+$pager.setup($request)
+
+#if($pager.hasItems())
+    <h3>#springMessage("division.title")</h3>
+    <table>
+        #foreach($division in $pager.page)
+            <tr>                
+                <td class="works"></td>
+                <td>
+                    <a href="$url.DIVISION_LIST_URL/$url.DIVISION_READ_URL/$division.id?index=$pager.getIndex()">$division.title</a>
+                </td>
+                #if($auth.anyGranted("ROLE_ADMIN"))
+                    <td class="edit"></td>
+                    <td>
+                        <a href="$url.DIVISION_LIST_URL/$url.DIVISION_UPDATE_URL/$division.id?index=$pager.getIndex()">#springMessage("division.edit")</a>
+                    </td>
+                    <td class="delete"></td>
+                    <td>
+                        <a href="$url.DIVISION_LIST_URL/$url.DELETE_URL/$division.id?index=$pager.getIndex()" onclick="return confirmDelete()">#springMessage("division.delete")</a>
+                    </td>
+                    <script>
+                        function confirmDelete() {
+                            if(confirm('#springMessage("delete")')) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    </script>
+                #end
+            </tr>
+        #end
+    </table><br />
+    #if($auth.anyGranted("ROLE_ADMIN"))
+        <div class="createButton">
+            <a href="$url.DIVISION_LIST_URL/$url.DIVISION_CREATE_URL">
+                <input type="button" id="input2" value="#springMessage("division.create")" />
+            </a>
+        </div><br /><br />
+    #end
+    <div class="pager">
+        #if ($pager.pagesAvailable > 1)
+            #set($pagelink = $link.self.param("show",$!pager.itemsPerPage))
+            #if($pager.prevIndex)
+                <a href="$pagelink.param('index',0)">#springMessage("division.first")</a>
+                <a href="$pagelink.param('index',$!pager.prevIndex)">#springMessage("division.prev")</a>
+            #end
+            #foreach($index in $pager.slip)
+                #if($index == $pager.index)
+                    <b>$pager.pageNumber</b>
+                #else
+                    <a href="$pagelink.param('index',$!index)">$!pager.getPageNumber($index)</a>
+                #end
+            #end
+            #if($pager.nextIndex)
+                #set($last = ($pager.getPageNumber($pager.getTotal()) - 1) * $pager.getItemsPerPage())
+                <a href="$pagelink.param('index',$!pager.nextIndex)">#springMessage("division.next")</a>
+                <a href="$pagelink.param('index',$last)">#springMessage("division.last")</a><br /><br />
+                #springMessage("division.showing") $!pager.pageDescription
+            #end
+        #end
+    </div>
+#else
+    <p>#springMessage("division.notFound")</p><br />
+    #if($auth.anyGranted("ROLE_ADMIN"))
+        <a href="$url.DIVISION_LIST_URL/$url.DIVISION_CREATE_URL"><input type="button" id="input2" value="#springMessage("division.create")" /></a> 
+    #end
+#end
+#end

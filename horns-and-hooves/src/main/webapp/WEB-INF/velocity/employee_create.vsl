@@ -1,0 +1,74 @@
+#set($title = "#employee_create_title()")
+#set($menu = "#employee_create_menu()")
+#set($content = "#employee_create_content()")
+#parse("layout.vsl")
+
+#macro(employee_create_title)
+    - #springMessage("create.title")
+#end
+
+#macro(employee_create_menu)
+    <li><a href="#springUrl("/")$url.DIVISION_LIST_URL" title="">#springMessage("divisionList")</a></li>
+    <li><a href="#springUrl("/")$url.DIVISION_LIST_URL/$url.DIVISION_CREATE_URL" title="">#springMessage("createDivision")</a></li>
+    <li><a href="#springUrl("/")" title="">#springMessage("employeeList")</a></li>
+    <li><a href="#springUrl("/")$url.EMPLOYEE_CREATE_URL" class="active" title="">#springMessage("createEmployee")</a></li>
+#end
+
+#macro(employee_create_content)
+<h3>#springMessage("create.title")</h3>
+
+    <form method="POST" commandName="$command.EMPLOYEE_CREATE_COMMAND">
+    <table>
+        <tr>
+            <td>#springMessage("create.firstName")</td>
+            <td>#springFormInput("employeeCreateForm.lastName", $!employeeCreateForm.lastName)</td>
+            <td class="error">#springShowErrors("")</td>
+        </tr>
+        <tr>
+            <td>#springMessage("create.lastName")</td>
+            <td>#springFormInput("employeeCreateForm.firstName", $!employeeCreateForm.firstName)</td>
+            <td class="error">#springShowErrors("")</td>
+        </tr>
+        <tr>
+            <td>#springMessage("create.salary")</td>
+            <td>#springFormInput("employeeCreateForm.salary", $!employeeCreateForm.salary)</td>
+            <td class="error">#springShowErrors("")</td>
+        </tr>
+        <tr>
+            <td>#springMessage("create.birthdate")</td>
+            <td>#springFormInput("employeeCreateForm.birthdate", $!employeeCreateForm.birthdate)</td>
+            <td class="error">#springShowErrors("")</td>
+        </tr>
+        <tr>
+            <td>#springMessage("create.division")</td>
+            <td>
+                #springBind("employeeCreateForm.divisionId")
+                <select name="divisionId" class="select" />
+                    #foreach($division in $divisionList)
+                        #if($division.id == $employeeCreateForm.divisionId)
+                            <option class="select_o" value="$!division.id" selected="true">$division.title</option>
+                        #else
+                            <option class="select_o" value="$!division.id">$division.title</option>
+                        #end
+                    #end
+                </select>  
+            </td>
+            #foreach($error in $status.errorMessages)
+                <td class="error">$error</td>
+            #end
+        </tr>
+        <tr>    
+            <td><input type="submit" id="input2" value="#springMessage("create.save")" /></td>
+            #if($request.getParameter("searchQuery"))
+                <td><a href="#springUrl("/")$url.SEARCH_URL?index=$!request.getParameter("index")&searchQuery=$request.getParameter("searchQuery")">
+                <input type="button" id="input2" value="#springMessage("create.cancel")" /></a></td>
+            #else
+                <td><a href="#springUrl("/")?index=$!request.getParameter("index")">
+                <input type="button" id="input2" value="#springMessage("create.cancel")" /></a></td>
+            #end
+        </tr>
+    </table>
+</form>   
+#end
+
+
