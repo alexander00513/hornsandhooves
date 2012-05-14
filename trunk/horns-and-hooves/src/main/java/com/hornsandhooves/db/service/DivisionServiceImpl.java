@@ -28,7 +28,7 @@ public class DivisionServiceImpl implements IDivisionService {
 		this.divisionDao = divisionDao;
 	}
 
-	public boolean createDivision(DivisionForm divisionForm, BindingResult result) {
+    public boolean createDivision(DivisionForm divisionForm, BindingResult result) {
         if(divisionDao.checkTitle(divisionForm)) {
             result.rejectValue("title", "divisionForm.title.invalidTitle");
             return false;

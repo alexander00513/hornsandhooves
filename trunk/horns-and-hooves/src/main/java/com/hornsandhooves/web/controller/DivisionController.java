@@ -33,6 +33,10 @@ public class DivisionController {
     @Autowired
     private IDivisionService divisionService;
     
+    public void setDivisionService(IDivisionService divisionService) {
+        this.divisionService = divisionService;
+    }
+
     /**
      * Выводит на страницу список отделов
      * @return ModelAndView
