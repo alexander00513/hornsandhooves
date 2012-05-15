@@ -62,6 +62,7 @@ public class DivisionServiceImplTest {
         replay(mockDivisionDao);
         boolean result_1 = divisionService.createDivision(divisionForm, result);
         assertEquals(false, result_1);
+        verify(mockDivisionDao);
         resetToNice(mockDivisionDao);
 
         expect(mockDivisionDao.checkTitle(divisionForm)).andReturn(false);
@@ -98,6 +99,7 @@ public class DivisionServiceImplTest {
         replay(mockDivisionDao);
         boolean result_1 = divisionService.updateDivision(divisionForm, result);
         assertEquals(false, result_1);
+        verify(mockDivisionDao);
         resetToNice(mockDivisionDao);
 
         expect(mockDivisionDao.read(division.getId())).andReturn(division);
@@ -105,6 +107,7 @@ public class DivisionServiceImplTest {
         replay(mockDivisionDao);
         boolean result_2 = divisionService.updateDivision(divisionForm, result);
         assertEquals(false, result_2);
+        verify(mockDivisionDao);
         resetToNice(mockDivisionDao);
 
         expect(mockDivisionDao.read(division.getId())).andReturn(division);
@@ -127,6 +130,7 @@ public class DivisionServiceImplTest {
         replay(mockDivisionDao);
         boolean result_1 = divisionService.deleteDivision(division.getId());
         assertEquals(false, result_1);
+        verify(mockDivisionDao);
         resetToNice(mockDivisionDao);
 
         expect(mockDivisionDao.read(division.getId())).andReturn(division);
@@ -151,13 +155,13 @@ public class DivisionServiceImplTest {
         expect(mockDivisionDao.findAll()).andReturn(collection);
         replay(mockDivisionDao);
         List<IDivision> result_1 = divisionService.findAll();
+        verify(mockDivisionDao);
         resetToNice(mockDivisionDao);
 
         collection.add(division);
         expect(mockDivisionDao.findAll()).andReturn(collection);
         replay(mockDivisionDao);
         List<IDivision> result_2 = divisionService.findAll();
-
         assertEquals(result_1.size() + 1, result_2.size());
         verify(mockDivisionDao);
         System.out.println("findAll - OK");
