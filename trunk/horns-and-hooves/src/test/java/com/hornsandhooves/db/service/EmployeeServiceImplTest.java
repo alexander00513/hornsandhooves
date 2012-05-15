@@ -75,6 +75,7 @@ public class EmployeeServiceImplTest {
         replay(mockDivisionDao);
         boolean result_2 = employeeService.createEmployee(employee, result);
         assertEquals(false, result_2);
+        verify(mockDivisionDao);
         resetToNice(mockDivisionDao);
 
         expect(mockDivisionDao.read(employee.getId())).andReturn(
@@ -174,13 +175,13 @@ public class EmployeeServiceImplTest {
         expect(mockEmployeeDao.findAll()).andReturn(collection);
         replay(mockEmployeeDao);
         List<IEmployee> result_1 = employeeService.findAll();
+        verify(mockEmployeeDao);
         resetToNice(mockEmployeeDao);
 
         collection.add(employee);
         expect(mockEmployeeDao.findAll()).andReturn(collection);
         replay(mockEmployeeDao);
         List<IEmployee> result_2 = employeeService.findAll();
-
         assertEquals(result_1.size() + 1, result_2.size());
         verify(mockEmployeeDao);
         System.out.println("findAll - OK");
