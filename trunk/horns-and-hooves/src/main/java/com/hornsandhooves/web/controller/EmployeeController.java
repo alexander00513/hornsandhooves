@@ -42,6 +42,14 @@ public class EmployeeController {
     @Autowired
     private IDivisionService divisionService;
     
+    public void setEmployeeService(IEmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+
+    public void setDivisionService(IDivisionService divisionService) {
+        this.divisionService = divisionService;
+    }
+
     /**
      * Выводит на страницу список сотрудников
      * @return ModelAndView

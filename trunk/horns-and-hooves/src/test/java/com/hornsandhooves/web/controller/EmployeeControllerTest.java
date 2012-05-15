@@ -4,92 +4,133 @@
  */
 package com.hornsandhooves.web.controller;
 
-import com.hornsandhooves.web.form.EmployeeForm;
-import org.junit.*;
-import static org.junit.Assert.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.servlet.ModelAndView;
-import static com.hornsandhooves.common.tools.Url.*;
-import static com.hornsandhooves.common.tools.View.*;
-import com.hornsandhooves.db.dao.DivisionDao;
-import com.hornsandhooves.db.dao.EmployeeDao;
-import com.hornsandhooves.db.entity.DivisionImpl;
-import com.hornsandhooves.db.entity.EmployeeImpl;
+import static com.hornsandhooves.common.tools.Command.EMPLOYEE_CREATE_COMMAND;
+import static com.hornsandhooves.common.tools.Command.EMPLOYEE_UPDATE_COMMAND;
+import static com.hornsandhooves.common.tools.Url.INDEX_URL;
+import static com.hornsandhooves.common.tools.View.EMPLOYEE_CREATE_VIEW;
+import static com.hornsandhooves.common.tools.View.EMPLOYEE_READ_VIEW;
+import static com.hornsandhooves.common.tools.View.EMPLOYEE_UPDATE_VIEW;
+import static com.hornsandhooves.common.tools.View.INDEX_VIEW;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.resetToNice;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.ModelAndViewAssert.assertCompareListModelAttribute;
+import static org.springframework.test.web.ModelAndViewAssert.assertModelAttributeAvailable;
+import static org.springframework.test.web.ModelAndViewAssert.assertViewName;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BeanPropertyBindingResult;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter;
+
+import com.hornsandhooves.db.entity.DivisionImpl;
+import com.hornsandhooves.db.entity.EmployeeImpl;
+import com.hornsandhooves.db.entity.IDivision;
+import com.hornsandhooves.db.entity.IEmployee;
+import com.hornsandhooves.db.service.DivisionServiceImpl;
+import com.hornsandhooves.db.service.EmployeeServiceImpl;
 
 /**
  *
  * @author Alexander
  */
-
-@Ignore
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:data.hibernate.xml"})
 public class EmployeeControllerTest {
     
-    private EmployeeForm employeeForm;
-    private BindingResult result;
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
+    private AnnotationMethodHandlerAdapter handleAdapter;
+    private DivisionServiceImpl divisionServiceMock;
+    private EmployeeServiceImpl employeeServiceMock;
+    private DivisionImpl division;
     private EmployeeImpl employee;
-    
-    
-    @Autowired
     private EmployeeController employeeController;
     
-    @Autowired
-    private EmployeeDao emloyeeDao;
-    
-    @Autowired
-    private DivisionDao divisionDao;
     
     @Before
-    public void setUp() {
-        employeeForm = new EmployeeForm();
-        employeeForm.setBirthdate("01.01.2000");
-        employeeForm.setFirstName("Testdata");
-        employeeForm.setLastName("Testdata");
-        employeeForm.setSalary("1000.50");
-        result = new BeanPropertyBindingResult(employeeForm, "employeeForm");
-        try {
-            employee = new EmployeeImpl();
-            employee.setActive(true);
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-            employee.setBirthdate(sdf.parse("01.01.2000"));
-            DivisionImpl division = new DivisionImpl();
-            division.setId(new Long(3));
-            employee.setDivisionId(division);
-            employee.setFirstName("Testdata");
-            employee.setId(new Long(3));
-            employee.setLastName("Testdata");
-            employee.setSalary(Double.valueOf("1000.50"));
-        } catch (ParseException ex) {}
+    public void setUp() throws ParseException {
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+        handleAdapter = new AnnotationMethodHandlerAdapter();
+        divisionServiceMock = createMock(DivisionServiceImpl.class);
+        employeeServiceMock = createMock(EmployeeServiceImpl.class);
+        division = new DivisionImpl();
+        
+        employee = new EmployeeImpl();
+        employee.setActive(true);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        employee.setBirthdate(sdf.parse("01.01.2000"));
+        DivisionImpl division = new DivisionImpl();
+        division.setId(new Long(3));
+        employee.setDivisionId(division);
+        employee.setFirstName("Testdata");
+        employee.setId(new Long(3));
+        employee.setLastName("Testdata");
+        employee.setSalary(Double.valueOf("1000.50"));
+        employeeController = new EmployeeController();
     }
 
     /**
      * Test of findAll method, of class EmployeeController.
+     * @throws Exception 
      */
     @Test
-    public void testFindAll() {
+    public void testFindAll() throws Exception {
         System.out.println("findAll");
-        ModelAndView result_1 = employeeController.findAll();
-        assertEquals(INDEX_VIEW, result_1.getViewName());
+        request.setMethod("GET");
+        request.setRequestURI("/");
+        
+        List<IEmployee> collection = new ArrayList<IEmployee>();
+        collection.add(employee);
+        List<IDivision> collection1 = new ArrayList<IDivision>();
+        collection1.add(division);
+        expect(employeeServiceMock.findAll()).andReturn(collection);
+        expect(divisionServiceMock.findAll()).andReturn(collection1);
+        employeeController.setEmployeeService(employeeServiceMock);
+        employeeController.setDivisionService(divisionServiceMock);
+        replay(employeeServiceMock);
+        replay(divisionServiceMock);
+        
+        ModelAndView mav = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav, INDEX_VIEW);
+        assertCompareListModelAttribute(mav, "employeeList", collection);
+        assertCompareListModelAttribute(mav, "divisionList", collection1);
+        verify(employeeServiceMock);
+        verify(divisionServiceMock);
         System.out.println("findAll - OK");
     }
 
     /**
      * Test of create method, of class EmployeeController.
+     * @throws Exception 
      */
     @Test
-    public void testCreate_0args() {
+    public void testCreate_0args() throws Exception {
         System.out.println("create");
-        ModelAndView result_1 = employeeController.create();
-        assertEquals(EMPLOYEE_CREATE_VIEW, result_1.getViewName());
+        request.setRequestURI("/employee/create");
+        request.setMethod("GET");
+        
+        List<IDivision> collection = new ArrayList<IDivision>();
+        collection.add(division);
+        expect(divisionServiceMock.findAll()).andReturn(collection);
+        employeeController.setDivisionService(divisionServiceMock);
+        replay(divisionServiceMock);
+        ModelAndView mav = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav, EMPLOYEE_CREATE_VIEW);
+        assertModelAttributeAvailable(mav, EMPLOYEE_CREATE_COMMAND);
+        assertCompareListModelAttribute(mav, "divisionList", collection);
+        verify(divisionServiceMock);
         System.out.println("create - OK");
     }
 
@@ -97,20 +138,47 @@ public class EmployeeControllerTest {
      * Test of create method, of class EmployeeController.
      */
     @Test
-    @Transactional
     public void testCreate_EmployeeForm_BindingResult() throws Exception {
         System.out.println("create");
+        request.setRequestURI("/employee/create");
+        request.setMethod("POST");
         
-        DivisionImpl division = new DivisionImpl();
-        division.setTitle("testData");
-        Long divId = divisionDao.create(division);
-        employeeForm.setDivisionId(divId);
-        ModelAndView result_1 = employeeController.create(employeeForm, result);
-        assertEquals("redirect:" + INDEX_URL, result_1.getViewName());
+        request.setParameter("firstName", "   ");
+        request.setParameter("lastName", "testData");
+        request.setParameter("active", "true");
+        request.setParameter("birthdate", "01.01.2000");
+        request.setParameter("divisionId", "3");
+        request.setParameter("salary", "1000");
+        expect(divisionServiceMock.findAll()).andReturn(new ArrayList<IDivision>());
+        employeeController.setDivisionService(divisionServiceMock);
+        replay(divisionServiceMock);
+        ModelAndView mav = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav, EMPLOYEE_CREATE_VIEW);
+        assertModelAttributeAvailable(mav, EMPLOYEE_CREATE_COMMAND);
+        assertModelAttributeAvailable(mav, "divisionList");
+        verify(divisionServiceMock);
+        resetToNice(divisionServiceMock);
         
-        employeeForm.setDivisionId(divId+1);
-        ModelAndView result_2 = employeeController.create(employeeForm, result);
-        assertEquals(EMPLOYEE_CREATE_VIEW, result_2.getViewName());
+        request.setParameter("firstName", "testData");
+        expect(employeeServiceMock.createEmployee(anyObject(EmployeeImpl.class), anyObject(BindingResult.class))).andReturn(true);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        ModelAndView mav1 = handleAdapter.handle(request, response, employeeController);
+        assertEquals(mav1.getViewName(), "redirect:" + INDEX_URL);
+        verify(employeeServiceMock);
+        resetToNice(employeeServiceMock);
+        
+        expect(employeeServiceMock.createEmployee(anyObject(EmployeeImpl.class), anyObject(BindingResult.class))).andReturn(false);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        expect(divisionServiceMock.findAll()).andReturn(new ArrayList<IDivision>());
+        employeeController.setDivisionService(divisionServiceMock);
+        replay(divisionServiceMock);
+        ModelAndView mav2 = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav2, EMPLOYEE_CREATE_VIEW);
+        assertModelAttributeAvailable(mav2, EMPLOYEE_CREATE_COMMAND);
+        verify(divisionServiceMock);
+        verify(employeeServiceMock);
         System.out.println("create - OK");
     }
 
@@ -118,16 +186,27 @@ public class EmployeeControllerTest {
      * Test of read method, of class EmployeeController.
      */
     @Test
-    @Transactional
     public void testRead() throws Exception {
         System.out.println("read");
+        request.setRequestURI("/employee/read/3");
+        request.setMethod("GET");
         
-        Long empId = emloyeeDao.create(employee);
-        ModelAndView result_1 = employeeController.read(empId);
-        assertEquals(EMPLOYEE_READ_VIEW, result_1.getViewName());
+        expect(employeeServiceMock.readEmployee(new Long(3))).andReturn(employee);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        ModelAndView mav = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav, EMPLOYEE_READ_VIEW);
+        assertModelAttributeAvailable(mav, "employee");
+        verify(employeeServiceMock);
+        resetToNice(employeeServiceMock);
         
-        ModelAndView result_2 = employeeController.read(empId+1);
-        assertEquals(EMPLOYEE_READ_VIEW, result_2.getViewName());
+        expect(employeeServiceMock.readEmployee(new Long(3))).andReturn(null);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        ModelAndView mav1 = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav1, EMPLOYEE_READ_VIEW);
+        assertModelAttributeAvailable(mav1, "empty");
+        verify(employeeServiceMock);
         System.out.println("read - OK");
     }
 
@@ -135,16 +214,32 @@ public class EmployeeControllerTest {
      * Test of update method, of class EmployeeController.
      */
     @Test
-    @Transactional
     public void testUpdate_Long() throws Exception {
         System.out.println("update");
+        request.setRequestURI("/employee/update/3");
+        request.setMethod("GET");
         
-        Long empId = emloyeeDao.create(employee);
-        ModelAndView result_1 = employeeController.update(empId);
-        assertEquals(EMPLOYEE_UPDATE_VIEW, result_1.getViewName());
+        expect(employeeServiceMock.readEmployee(new Long(3))).andReturn(employee);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        expect(divisionServiceMock.findAll()).andReturn(new ArrayList<IDivision>());
+        employeeController.setDivisionService(divisionServiceMock);
+        replay(divisionServiceMock);
+        ModelAndView mav = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav, EMPLOYEE_UPDATE_VIEW);
+        assertModelAttributeAvailable(mav, EMPLOYEE_UPDATE_COMMAND);
+        assertModelAttributeAvailable(mav, "divisionList");
+        verify(employeeServiceMock);
+        verify(divisionServiceMock);
+        resetToNice(employeeServiceMock);
         
-        ModelAndView result_2 = employeeController.update(empId+1);
-        assertEquals(EMPLOYEE_UPDATE_VIEW, result_2.getViewName());
+        expect(employeeServiceMock.readEmployee(new Long(3))).andReturn(null);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        ModelAndView mav1 = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav1, EMPLOYEE_UPDATE_VIEW);
+        assertModelAttributeAvailable(mav1, "empty");
+        verify(employeeServiceMock);
         System.out.println("update - OK");
     }
 
@@ -152,37 +247,63 @@ public class EmployeeControllerTest {
      * Test of update method, of class EmployeeController.
      */
     @Test
-    @Transactional
     public void testUpdate_EmployeeForm_BindingResult() throws Exception {
         System.out.println("update");
+        request.setRequestURI("/employee/update/3");
+        request.setMethod("POST");
         
-        Long empId = emloyeeDao.create(employee);
-        employeeForm.setId(empId);
-        employeeForm.setActive(true);
-        employeeForm.setFirstName("testDataNew");
-        DivisionImpl division = new DivisionImpl();
-        division.setTitle("testData");
-        Long divId = divisionDao.create(division);
-        employeeForm.setDivisionId(divId);
-        ModelAndView result_1 = employeeController.update(employeeForm, result);
-        assertEquals("redirect:" + INDEX_URL, result_1.getViewName());
+        request.setParameter("firstName", "   ");
+        request.setParameter("lastName", "testData");
+        request.setParameter("active", "true");
+        request.setParameter("birthdate", "01.01.2000");
+        request.setParameter("divisionId", "3");
+        request.setParameter("salary", "1000");
+        request.setParameter("id", "3");
+        expect(divisionServiceMock.findAll()).andReturn(new ArrayList<IDivision>());
+        employeeController.setDivisionService(divisionServiceMock);
+        replay(divisionServiceMock);
+        ModelAndView mav = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav, EMPLOYEE_UPDATE_VIEW);
+        assertModelAttributeAvailable(mav, EMPLOYEE_UPDATE_COMMAND);
+        assertModelAttributeAvailable(mav, "divisionList");
+        verify(divisionServiceMock);
+        resetToNice(divisionServiceMock);
         
-        employeeForm.setId(divId+1);
-        ModelAndView result_2 = employeeController.update(employeeForm, result);
-        assertEquals(EMPLOYEE_UPDATE_VIEW, result_2.getViewName());
+        request.setParameter("firstName", "testData");
+        expect(employeeServiceMock.updateEmployee(anyObject(EmployeeImpl.class), anyObject(BindingResult.class))).andReturn(true);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        ModelAndView mav1 = handleAdapter.handle(request, response, employeeController);
+        assertEquals(mav1.getViewName(), "redirect:" + INDEX_URL);
+        verify(employeeServiceMock);
+        resetToNice(employeeServiceMock);
+        
+        expect(employeeServiceMock.updateEmployee(anyObject(EmployeeImpl.class), anyObject(BindingResult.class))).andReturn(false);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        ModelAndView mav2 = handleAdapter.handle(request, response, employeeController);
+        assertViewName(mav2, EMPLOYEE_UPDATE_VIEW);
+        assertModelAttributeAvailable(mav2, "empty");
+        verify(employeeServiceMock);
         System.out.println("update - OK");
     }
 
     /**
      * Test of delete method, of class EmployeeController.
+     * @throws Exception 
      */
     @Test
-    @Transactional
-    public void testDelete() {
+    public void testDelete() throws Exception {
         System.out.println("delete");
-        Long empId = emloyeeDao.create(employee);
-        ModelAndView result_1 = employeeController.delete(empId);
-        assertEquals("redirect:" + INDEX_URL, result_1.getViewName());
+        request.setRequestURI("/delete/3");
+        request.setMethod("GET");
+        
+        expect(employeeServiceMock.deleteEmployee(new Long(3))).andReturn(true);
+        employeeController.setEmployeeService(employeeServiceMock);
+        replay(employeeServiceMock);
+        ModelAndView mav = handleAdapter.handle(request, response, employeeController);
+        assertEquals(mav.getViewName(), "redirect:" + INDEX_URL);
+        verify(employeeServiceMock);
         System.out.println("delete - OK");
     }
 }
