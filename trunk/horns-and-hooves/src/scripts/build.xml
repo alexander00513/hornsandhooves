@@ -1,0 +1,11 @@
+<project name="hornsandhooves">
+	<property file="build.properties" />
+	<target name="clean">
+		<delete dir="/${deploy.path}/${app}" />
+		<copy todir="/${deploy.path}/${app}">
+			<fileset dir="/${build.path}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+	</target>
+</project>
