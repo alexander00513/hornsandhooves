@@ -1,0 +1,15 @@
+1. Создать базу данных с именем "hornsandhooves" в СУБД POstgreSQL
+
+2. Выполнить 2 SQL запроса, находящихся в файлах "create_db" и "init_db", именно в такой последовательности. Файлы находятся в папке "horns-and-hooves\src\main\resources\initialization_db"
+
+3. Отредактировать файл "jdbc.properties". Ввести логин и пароль пользователя СУБД PostgreSQL в строки "jdbc.username=" и "jdbc.password=" после знака "=" (без начальных и концевых пробелов). Файл находится в папке - "horns-and-hooves\src\main\webapp\WEB-INF"
+
+4. Отредактировать файл "jdbc.properties". Ввести логин и пароль пользователя СУБД PostgreSQL в строки "jdbc.username=" и "jdbc.password=" после знака "=" (без начальных и концевых пробелов). Файл находится в папке - "horns-and-hooves\src\test\resources"
+
+5. Собрать проект
+
+6. Развернуть проект на сервере Tomcat, скопировав файл "hornsandhooves-1.0-SNAPSHOT.war" из папки "target" в папку "webapp" (на сервере)
+
+7. Запустить сервер, открыть браузер, набрать в стоке браузера - "адрес сервера(по умолчанию - http://localhost:8084)/hornsandhooves/"
+
+8. Логин пароль читателя - user user, редактора - admin admin 
